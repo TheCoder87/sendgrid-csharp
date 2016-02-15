@@ -43,6 +43,8 @@ namespace SendGrid
             GlobalStats = new GlobalStats(this);
         }
 
+       
+
         /// <summary>
         ///     Create a client that connects to the SendGrid Web API
         /// </summary>
@@ -100,11 +102,62 @@ namespace SendGrid
             }
         }
 
+        private async Task<HttpResponseMessage> RequestAsync(Methods method, string endpoint, JArray data)
+        {
+            using (var client = new HttpClient())
+            {
+                try
+                {
+                    client.BaseAddress = _baseUri;
+                    client.DefaultRequestHeaders.Accept.Clear();
+                    client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue(MediaType));
+                    client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _apiKey);
+                    client.DefaultRequestHeaders.TryAddWithoutValidation("User-Agent", "sendgrid/" + Version + ";csharp");
+
+                    switch (method)
+                    {
+                        case Methods.GET:
+                            return await client.GetAsync(endpoint);
+                        case Methods.POST:
+                            return await client.PostAsJsonAsync(endpoint, data);
+                        case Methods.PATCH:
+                            endpoint = _baseUri + endpoint;
+                            StringContent content = new StringContent(data.ToString(), Encoding.UTF8, MediaType);
+                            HttpRequestMessage request = new HttpRequestMessage
+                            {
+                                Method = new HttpMethod("PATCH"),
+                                RequestUri = new Uri(endpoint),
+                                Content = content
+                            };
+                            return await client.SendAsync(request);
+                        case Methods.DELETE:
+                            return await client.DeleteAsync(endpoint);
+                        default:
+                            HttpResponseMessage response = new HttpResponseMessage();
+                            response.StatusCode = HttpStatusCode.MethodNotAllowed;
+                            var message = "{\"errors\":[{\"message\":\"Bad method call, supported methods are GET, POST, PATCH and DELETE\"}]}";
+                            response.Content = new StringContent(message);
+                            return response;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    HttpResponseMessage response = new HttpResponseMessage();
+                    string message;
+                    message = (ex is HttpRequestException) ? ".NET HttpRequestException" : ".NET Exception";
+                    message = message + ", raw message: \n\n";
+                    response.Content = new StringContent(message + ex.Message);
+                    return response;
+                }
+            }
+        }
+
+
         /// <param name="endpoint">Resource endpoint, do not prepend slash</param>
         /// <returns>The resulting message from the API call</returns>
         public async Task<HttpResponseMessage> Get(string endpoint)
         {
-            return await RequestAsync(Methods.GET, endpoint, null);
+            return await RequestAsync(Methods.GET, endpoint, null as JObject);
         }
 
         /// <param name="endpoint">Resource endpoint, do not prepend slash</param>
@@ -115,11 +168,23 @@ namespace SendGrid
             return await RequestAsync(Methods.POST, endpoint, data);
         }
 
+        public async Task<HttpResponseMessage> Post(string endpoint, JArray data)
+        {
+            return await RequestAsync(Methods.POST, endpoint, data);
+        }
+
+
+
         /// <param name="endpoint">Resource endpoint, do not prepend slash</param>
         /// <returns>The resulting message from the API call</returns>
         public async Task<HttpResponseMessage> Delete(string endpoint)
         {
-            return await RequestAsync(Methods.DELETE, endpoint, null);
+            return await RequestAsync(Methods.DELETE, endpoint, null as JObject);
+        }
+
+        public async Task<HttpResponseMessage> Delete(string endpoint,JObject jObject)
+        {
+            return await RequestAsync(Methods.DELETE, endpoint, jObject);
         }
 
         /// <param name="endpoint">Resource endpoint, do not prepend slash</param>
@@ -129,5 +194,7 @@ namespace SendGrid
         {
             return await RequestAsync(Methods.PATCH, endpoint, data);
         }
+
+      
     }
 }
