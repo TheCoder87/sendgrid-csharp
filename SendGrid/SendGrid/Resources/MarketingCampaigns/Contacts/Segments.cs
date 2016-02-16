@@ -37,15 +37,7 @@ namespace SendGrid.Resources.MarketingCampaigns.Contacts
             return await _client.Get(_endpoint);
         }
 
-        /// <summary>
-        /// Add recipient addresses to the suppressions list for a given group.
-        /// 
-        /// If the group has been deleted, this request will add the address to the global suppression.
-        /// </summary>
-        /// <param name="groupId">ID of the suppression group</param>
-        /// <param name="recipient_emails">Array of email addresses to add to the suppression group</param>
-        /// <returns>https://sendgrid.com/docs/API_Reference/Web_API_v3/Suppression_Management/suppressions.html</returns>
-        public async Task<HttpResponseMessage> Post(int groupId, string[] emails)
+       public async Task<HttpResponseMessage> Post(int groupId, string[] emails)
         {
             JArray receipient_emails = new JArray();
             foreach (string email in emails) { receipient_emails.Add(email); }
