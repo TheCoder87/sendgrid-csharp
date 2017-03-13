@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Reflection;
@@ -153,6 +154,7 @@ namespace SendGrid
         }
 
 
+
         /// <param name="endpoint">Resource endpoint, do not prepend slash</param>
         /// <returns>The resulting message from the API call</returns>
         public async Task<HttpResponseMessage> Get(string endpoint)
@@ -187,6 +189,11 @@ namespace SendGrid
             return await RequestAsync(Methods.DELETE, endpoint, jObject);
         }
 
+        //public async Task<HttpResponseMessage> Delete(string endpoint, JArray recipientIds)
+        //{
+        //    return await RequestAsync(Methods.DELETE, endpoint, recipientIds);
+        //}
+
         /// <param name="endpoint">Resource endpoint, do not prepend slash</param>
         /// <param name="data">An JObject representing the resource's data</param>
         /// <returns>The resulting message from the API call</returns>
@@ -195,6 +202,12 @@ namespace SendGrid
             return await RequestAsync(Methods.PATCH, endpoint, data);
         }
 
-      
+        public async Task<HttpResponseMessage> Patch(string endpoint, JArray data)
+        {
+            return await RequestAsync(Methods.PATCH, endpoint, data);
+        }
+
+
+        
     }
 }

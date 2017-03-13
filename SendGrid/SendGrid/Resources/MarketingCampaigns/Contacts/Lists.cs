@@ -27,40 +27,25 @@ namespace SendGrid.Resources.MarketingCampaigns.Contacts
             _client = client;
         }
 
-        /// <summary>
-        /// Get suppressed addresses for a given group.
-        /// </summary>
-        /// <param name="groupId">ID of the suppression group</param>
-        /// <returns>https://sendgrid.com/docs/API_Reference/Web_API_v3/Suppression_Management/suppressions.html</returns>
+      
         public async Task<HttpResponseMessage> Get()
         {
             return await _client.Get(_endpoint);
         }
 
-        /// <summary>
-        /// Add recipient addresses to the suppressions list for a given group.
-        /// 
-        /// If the group has been deleted, this request will add the address to the global suppression.
-        /// </summary>
-        /// <param name="groupId">ID of the suppression group</param>
-        /// <param name="recipient_emails">Array of email addresses to add to the suppression group</param>
-        /// <returns>https://sendgrid.com/docs/API_Reference/Web_API_v3/Suppression_Management/suppressions.html</returns>
-        public async Task<HttpResponseMessage> Post(int groupId, string[] emails)
-        {
-            JArray receipient_emails = new JArray();
-            foreach (string email in emails) { receipient_emails.Add(email); }
-            var data = new JObject(new JProperty("recipient_emails", receipient_emails));
-            return await _client.Post(_endpoint + "/" + groupId.ToString() + "/suppressions", data);
-        }
+       
+        //public async Task<HttpResponseMessage> Post(int groupId, string[] emails)
+        //{
+        //    JArray receipient_emails = new JArray();
+        //    foreach (string email in emails) { receipient_emails.Add(email); }
+        //    var data = new JObject(new JProperty("recipient_emails", receipient_emails));
+        //    return await _client.Post(_endpoint + "/" + groupId.ToString() + "/suppressions", data);
+        //}
 
-        /// <summary>
-        /// Delete a suppression group.
-        /// </summary>
-        /// <param name="groupId">ID of the suppression group to delete</param>
-        /// <returns>https://sendgrid.com/docs/API_Reference/Web_API_v3/Suppression_Management/suppressions.html</returns>
-        public async Task<HttpResponseMessage> Delete(int groupId, string email)
-        {
-            return await _client.Delete(_endpoint + "/" + groupId.ToString() + "/suppressions/" + email);
-        }
+     
+        //public async Task<HttpResponseMessage> Delete(int groupId, string email)
+        //{
+        //    return await _client.Delete(_endpoint + "/" + groupId.ToString() + "/suppressions/" + email);
+        //}
     }
 }
